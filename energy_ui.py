@@ -1,18 +1,14 @@
-from config import PRIVATE_KEY, ACCOUNT
 from web3 import Web3
 import json
 
 # Connect to local Ethereum node (e.g., Ganache)
-w3 = Web3(Web3.HTTPProvider('https://sepolia.infura.io/v3/163d1142780840f2b880961a3974cc9b'))
-
-#replace with your MetaMask wallet address
-account = "0x2E0B55ABc4c40fbCcd54f61aF934d04CB0c8CE52"
-
+w3 = Web3(Web3.HTTPProvider('http://127.0.0.1:7545'))
+account = w3.eth.accounts[0]  # Use first account
 
 # Contract addresses (replace with actual deployed addresses)
-TOKEN_ADDRESS = "0xCc95EFD8beb1C33334EDEFCF31C87893d51B4351"
-MARKETPLACE_ADDRESS = "0xDF581424A09Aae721B5F57FDF0D19Ca805b38672"
-ENERGY_ADDRESS = "0x901C9A48005F7e7EAB3bE44A1A3edc8933cDc1EC"
+TOKEN_ADDRESS = "0xYourTokenAddress"
+MARKETPLACE_ADDRESS = "0xYourMarketplaceAddress"
+ENERGY_ADDRESS = "0xYourEnergyAddress"
 
 # Load ABIs (replace with actual ABIs from compilation)
 with open('EnergyToken.json', 'r') as f:
@@ -27,17 +23,12 @@ marketplace_contract = w3.eth.contract(address=MARKETPLACE_ADDRESS, abi=marketpl
 energy_contract = w3.eth.contract(address=ENERGY_ADDRESS, abi=energy_abi)
 
 def buy_tokens(ether_amount):
-    tx = marketplace_contract.functions.buyTokens().build_transaction({
+    tx_hash = marketplace_contract.functions.buyTokens().transact({
         'from': account,
-        'value': w3.to_wei(ether_amount, 'ether'),
-        'nonce': w3.eth.get_transaction_count(account),
-        'gas': 200000,
-        'gasPrice': w3.to_wei('2', 'gwei')
+        'value': w3.to_wei(ether_amount, 'ether')
     })
-    signed_tx = w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
-    tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
     w3.eth.wait_for_transaction_receipt(tx_hash)
-    print(f"Bought tokens with {ether_amount} ETH. Tx Hash: {tx_hash.hex()}")
+    print(f"Bought tokens with {ether_amount} ether")
 
 def sell_tokens(amount):
     # Approve tokens first
