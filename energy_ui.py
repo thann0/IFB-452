@@ -1,3 +1,4 @@
+from addresses import TOKEN_ADDRESS, MARKETPLACE_ADDRESS, ENERGY_ADDRESS
 from config import PRIVATE_KEY, ACCOUNT
 from web3 import Web3
 import json
@@ -5,14 +6,6 @@ import json
 # Connect to meta mask wallet via infura
 w3 = Web3(Web3.HTTPProvider('https://sepolia.infura.io/v3/163d1142780840f2b880961a3974cc9b'))
 
-#replace with your MetaMask wallet address
-account = "0x2E0B55ABc4c40fbCcd54f61aF934d04CB0c8CE52"
-
-
-# Contract addresses
-TOKEN_ADDRESS = "0xCc95EFD8beb1C33334EDEFCF31C87893d51B4351"
-MARKETPLACE_ADDRESS = "0xbB031042319b25bF7eC620bec43b1fF2deEa42a7"
-ENERGY_ADDRESS = "0xe8D17e3C8CE2217B02Fccc16b3dF597f1e2B9aa8"
 
 # Load ABIs (replace with actual ABIs from compilation)
 with open('EnergyToken.json', 'r') as f:
@@ -58,12 +51,12 @@ def sell_tokens(token_amount):
         approve_tx_hash = w3.eth.send_raw_transaction(signed_approve.raw_transaction)
         approve_receipt = w3.eth.wait_for_transaction_receipt(approve_tx_hash)
         if approve_receipt['status'] != 1:
-            print("❌ Approval transaction failed.")
+            print(" Approval transaction failed.")
             return
         allowance = token_contract.functions.allowance(account, marketplace_contract.address).call()
-        print("✅ Allowance now set to:", w3.from_wei(allowance, 'ether'), "ETK")
+        print(" Allowance now set to:", w3.from_wei(allowance, 'ether'), "ETK")
     except Exception as e:
-        print(f"❌ Error during approval: {e}")
+        print(f" Error during approval: {e}")
         return
 
     # Step 2: Sell the tokens
@@ -79,11 +72,11 @@ def sell_tokens(token_amount):
         sell_receipt = w3.eth.wait_for_transaction_receipt(sell_tx_hash)
 
         if sell_receipt['status'] == 1:
-            print(f"✅ Sold {token_amount} ETK — tx: {sell_tx_hash.hex()}")
+            print(f" Sold {token_amount} ETK — tx: {sell_tx_hash.hex()}")
         else:
-            print("❌ Sell transaction failed. Possibly not enough ETH in contract.")
+            print(" Sell transaction failed. Possibly not enough ETH in contract.")
     except Exception as e:
-        print(f"❌ Error during sell: {e}")
+        print(f" Error during sell: {e}")
 
 
 
@@ -100,7 +93,7 @@ def create_offer(token_amount, price_per_token):
     signed_tx = w3.eth.account.sign_transaction(tx, PRIVATE_KEY)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     w3.eth.wait_for_transaction_receipt(tx_hash)
-    print(f"✅ Created offer for {token_amount} ETK @ {price_per_token} ETH — tx: {tx_hash.hex()}")
+    print(f" Created offer for {token_amount} ETK @ {price_per_token} ETH — tx: {tx_hash.hex()}")
 
 
 def buy_energy(offer_id, energy_amount_kwh):
@@ -137,7 +130,7 @@ def buy_energy(offer_id, energy_amount_kwh):
     signed_tx = w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     w3.eth.wait_for_transaction_receipt(tx_hash)
-    print(f"✅ Bought {energy_amount_kwh} kWh from offer #{offer_id} — tx: {tx_hash.hex()}")
+    print(f" Bought {energy_amount_kwh} kWh from offer #{offer_id} — tx: {tx_hash.hex()}")
 
 
 
@@ -152,13 +145,8 @@ def view_offers():
 
 while True:
     print("\nEnerShare UI")
-    allowance = token_contract.functions.allowance(account, MARKETPLACE_ADDRESS).call()
-    print("Allowance:", w3.from_wei(allowance, 'ether'))
-    balance = w3.eth.get_balance(MARKETPLACE_ADDRESS)
-    print("Marketplace ETH:", w3.from_wei(balance, 'ether'), "ETH")
-
     price = marketplace_contract.functions.tokenPrice().call()
-    print("Token Price:", w3.from_wei(price, 'ether'), "ETH per ETK")
+    print("Token Price:", w3.from_wei(price, 'ether'), "ETH per ETK") #price of one ETK
 
     print("1. Buy tokens")
     print("2. Sell tokens")
