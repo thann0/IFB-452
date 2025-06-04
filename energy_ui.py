@@ -28,7 +28,7 @@ def buy_tokens(ether_amount):
         'gas': 200000,
         'gasPrice': w3.to_wei('2', 'gwei')
     })
-    signed_tx = w3.eth.ACCOUNT.sign_transaction(tx, PRIVATE_KEY)
+    signed_tx = w3.eth.account.sign_transaction(tx, PRIVATE_KEY)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     w3.eth.wait_for_transaction_receipt(tx_hash)
     print(f"Bought tokens with {ether_amount} ETH. Tx Hash: {tx_hash.hex()}")
@@ -48,7 +48,7 @@ def sell_tokens(token_amount):
             'gas': 100000,
             'gasPrice': w3.to_wei('2', 'gwei')
         })
-        signed_approve = w3.eth.ACCOUNT.sign_transaction(approve_tx, private_key=PRIVATE_KEY)
+        signed_approve = w3.eth.account.sign_transaction(approve_tx, private_key=PRIVATE_KEY)
         approve_tx_hash = w3.eth.send_raw_transaction(signed_approve.raw_transaction)
         approve_receipt = w3.eth.wait_for_transaction_receipt(approve_tx_hash)
         if approve_receipt['status'] != 1:
@@ -68,7 +68,7 @@ def sell_tokens(token_amount):
             'gas': 200000,
             'gasPrice': w3.to_wei('2', 'gwei')
         })
-        signed_sell = w3.eth.ACCOUNT.sign_transaction(sell_tx, private_key=PRIVATE_KEY)
+        signed_sell = w3.eth.account.sign_transaction(sell_tx, private_key=PRIVATE_KEY)
         sell_tx_hash = w3.eth.send_raw_transaction(signed_sell.raw_transaction)
         sell_receipt = w3.eth.wait_for_transaction_receipt(sell_tx_hash)
 
@@ -91,7 +91,7 @@ def create_offer(token_amount, price_per_token):
         'gas': 200000,
         'gasPrice': w3.to_wei('2', 'gwei')
     })
-    signed_tx = w3.eth.ACCOUNT.sign_transaction(tx, PRIVATE_KEY)
+    signed_tx = w3.eth.account.sign_transaction(tx, PRIVATE_KEY)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     w3.eth.wait_for_transaction_receipt(tx_hash)
     print(f" Created offer for {token_amount} ETK @ {price_per_token} ETH — tx: {tx_hash.hex()}")
@@ -116,7 +116,7 @@ def buy_energy(offer_id, energy_amount_kwh):
         'gas': 100000,
         'gasPrice': w3.to_wei('2', 'gwei')
     })
-    signed_approve = w3.eth.ACCOUNT.sign_transaction(approve_tx, private_key=PRIVATE_KEY)
+    signed_approve = w3.eth.account.sign_transaction(approve_tx, private_key=PRIVATE_KEY)
     w3.eth.send_raw_transaction(signed_approve.raw_transaction)
     w3.eth.wait_for_transaction_receipt(signed_approve.hash)
 
@@ -128,7 +128,7 @@ def buy_energy(offer_id, energy_amount_kwh):
         'gas': 200000,
         'gasPrice': w3.to_wei('2', 'gwei')
     })
-    signed_tx = w3.eth.ACCOUNT.sign_transaction(tx, private_key=PRIVATE_KEY)
+    signed_tx = w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     w3.eth.wait_for_transaction_receipt(tx_hash)
     print(f" Bought {energy_amount_kwh} kWh from offer #{offer_id} — tx: {tx_hash.hex()}")
