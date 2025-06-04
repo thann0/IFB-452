@@ -1,3 +1,4 @@
+
 from addresses import TOKEN_ADDRESS, MARKETPLACE_ADDRESS, ENERGY_ADDRESS
 from config import PRIVATE_KEY, ACCOUNT
 from web3 import Web3
@@ -20,12 +21,9 @@ marketplace_contract = w3.eth.contract(address=MARKETPLACE_ADDRESS, abi=marketpl
 energy_contract = w3.eth.contract(address=ENERGY_ADDRESS, abi=energy_abi)
 
 def buy_tokens(ether_amount):
-    tx = marketplace_contract.functions.buyTokens().build_transaction({
+    tx_hash = marketplace_contract.functions.buyTokens().transact({
         'from': account,
-        'value': w3.to_wei(ether_amount, 'ether'),
-        'nonce': w3.eth.get_transaction_count(account),
-        'gas': 200000,
-        'gasPrice': w3.to_wei('2', 'gwei')
+        'value': w3.to_wei(ether_amount, 'ether')
     })
     signed_tx = w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
