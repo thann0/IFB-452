@@ -1,8 +1,8 @@
-
 from addresses import TOKEN_ADDRESS, MARKETPLACE_ADDRESS, ENERGY_ADDRESS
 from config import PRIVATE_KEY, ACCOUNT
 from web3 import Web3
 import json
+account = "0x2E0B55ABc4c40fbCcd54f61aF934d04CB0c8CE52"
 
 # Connect to meta mask wallet via infura
 w3 = Web3(Web3.HTTPProvider('https://sepolia.infura.io/v3/163d1142780840f2b880961a3974cc9b'))
@@ -21,11 +21,14 @@ marketplace_contract = w3.eth.contract(address=MARKETPLACE_ADDRESS, abi=marketpl
 energy_contract = w3.eth.contract(address=ENERGY_ADDRESS, abi=energy_abi)
 
 def buy_tokens(ether_amount):
-    tx_hash = marketplace_contract.functions.buyTokens().transact({
-        'from': account,
-        'value': w3.to_wei(ether_amount, 'ether')
+    tx = marketplace_contract.functions.buyTokens().build_transaction({
+        'from': ACCOUNT,
+        'value': w3.to_wei(ether_amount, 'ether'),
+        'nonce': w3.eth.get_transaction_count(ACCOUNT),
+        'gas': 200000,
+        'gasPrice': w3.to_wei('2', 'gwei')
     })
-    signed_tx = w3.eth.account.sign_transaction(tx, private_key=PRIVATE_KEY)
+    signed_tx = w3.eth.account.sign_transaction(tx, PRIVATE_KEY)
     tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
     w3.eth.wait_for_transaction_receipt(tx_hash)
     print(f"Bought tokens with {ether_amount} ETH. Tx Hash: {tx_hash.hex()}")
@@ -40,8 +43,8 @@ def sell_tokens(token_amount):
             marketplace_contract.address,
             token_units
         ).build_transaction({
-            'from': account,
-            'nonce': w3.eth.get_transaction_count(account),
+            'from': ACCOUNT,
+            'nonce': w3.eth.get_transaction_count(ACCOUNT),
             'gas': 100000,
             'gasPrice': w3.to_wei('2', 'gwei')
         })
@@ -51,7 +54,7 @@ def sell_tokens(token_amount):
         if approve_receipt['status'] != 1:
             print(" Approval transaction failed.")
             return
-        allowance = token_contract.functions.allowance(account, marketplace_contract.address).call()
+        allowance = token_contract.functions.allowance(ACCOUNT, marketplace_contract.address).call()
         print(" Allowance now set to:", w3.from_wei(allowance, 'ether'), "ETK")
     except Exception as e:
         print(f" Error during approval: {e}")
@@ -60,8 +63,8 @@ def sell_tokens(token_amount):
     # Step 2: Sell the tokens
     try:
         sell_tx = marketplace_contract.functions.sellTokens(token_units).build_transaction({
-            'from': account,
-            'nonce': w3.eth.get_transaction_count(account),
+            'from': ACCOUNT,
+            'nonce': w3.eth.get_transaction_count(ACCOUNT),
             'gas': 200000,
             'gasPrice': w3.to_wei('2', 'gwei')
         })
@@ -83,8 +86,8 @@ def create_offer(token_amount, price_per_token):
         w3.to_wei(token_amount, 'ether'),
         w3.to_wei(price_per_token, 'ether')
     ).build_transaction({
-        'from': account,
-        'nonce': w3.eth.get_transaction_count(account),
+        'from': ACCOUNT,
+        'nonce': w3.eth.get_transaction_count(ACCOUNT),
         'gas': 200000,
         'gasPrice': w3.to_wei('2', 'gwei')
     })
@@ -108,8 +111,8 @@ def buy_energy(offer_id, energy_amount_kwh):
         energy_contract.address,
         total_cost_tokens
     ).build_transaction({
-        'from': account,
-        'nonce': w3.eth.get_transaction_count(account),
+        'from': ACCOUNT,
+        'nonce': w3.eth.get_transaction_count(ACCOUNT),
         'gas': 100000,
         'gasPrice': w3.to_wei('2', 'gwei')
     })
@@ -119,9 +122,9 @@ def buy_energy(offer_id, energy_amount_kwh):
 
     # Execute buy
     tx = energy_contract.functions.buyEnergy(offer_id, energy_amount).build_transaction({
-        'from': account,
+        'from': ACCOUNT,
         'value': 0,
-        'nonce': w3.eth.get_transaction_count(account),
+        'nonce': w3.eth.get_transaction_count(ACCOUNT),
         'gas': 200000,
         'gasPrice': w3.to_wei('2', 'gwei')
     })
